@@ -12,5 +12,7 @@ namespace RestauranteReservas.Entidades
         public int CantidadPersonas { get; set; }
         public string Observaciones { get; set; } = string.Empty;
         public string Estado { get; set; } = "Confirmada";
+        public string NombreCliente { get; set; } = string.Empty;
+
     }
 }

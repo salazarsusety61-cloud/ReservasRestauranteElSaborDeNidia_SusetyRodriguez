@@ -1,83 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using RestauranteReservas.Entidades;
-using RestauranteReservas.Datos;
 
 namespace RestauranteReservas.Logica
 {
-    public class ReservaLogica
+    public static class ReservaLogica
     {
-        private ReservaDatos _datos = new ReservaDatos();
-
-        public string ValidarReserva(Reserva reserva, Mesa mesa,
-                                    TimeSpan horarioInicio, TimeSpan horarioFin,
-                                    TimeSpan duracionMaxima)
+        public static string ValidarReserva(Reserva reserva, int capacidadMesa, List<Reserva> reservasExistentes)
         {
-            // Regla 1: Datos obligatorios no vacíos
-            if (reserva.Fecha == default || reserva.HoraInicio == default ||
-                reserva.HoraFin == default || reserva.CantidadPersonas <= 0)
-            {
-                return " Complete todos los datos obligatorios.";
-            }
+            // Regla 1: Ningún dato vacío
+            if (reserva == null)
+                return " La reserva no puede estar vacía.";
+            if (reserva.Fecha == DateTime.MinValue)
+                return " Debe seleccionar una fecha.";
+            if (reserva.CantidadPersonas <= 0)
+                return " La cantidad de personas debe ser mayor a 0.";
 
-            // Regla 2: Fecha y hora no en el pasado
-            if (reserva.Fecha.Date < DateTime.Now.Date)
-            {
-                return " La fecha no puede ser anterior a hoy.";
-            }
-            if (reserva.Fecha.Date == DateTime.Now.Date && reserva.HoraInicio < DateTime.Now.TimeOfDay)
-            {
-                return " La hora de inicio ya pasó.";
-            }
+            // Regla 2: NO se puede reservar en fecha u hora pasada
+            DateTime fechaHoraReserva = reserva.Fecha.Date.Add(reserva.HoraInicio);
+            if (fechaHoraReserva < DateTime.Now)
+                return " No puede hacer reservas en fechas u horas que ya pasaron.";
 
-            // Regla 3: Hora fin debe ser mayor que hora inicio
+            // Regla 3: Hora fin debe ser mayor a hora inicio
             if (reserva.HoraFin <= reserva.HoraInicio)
-            {
                 return " La hora de fin debe ser posterior a la hora de inicio.";
-            }
 
             // Regla 4: Dentro del horario de atención
-            if (reserva.HoraInicio < horarioInicio || reserva.HoraFin > horarioFin)
-            {
-                return $" El horario de atención es de {horarioInicio:hh\\:mm} a {horarioFin:hh\\:mm}.";
-            }
+            if (reserva.HoraInicio < Configuracion.HoraApertura || reserva.HoraFin > Configuracion.HoraCierre)
+                return $" El horario de atención es de {Configuracion.HoraApertura:hh\\:mm} a {Configuracion.HoraCierre:hh\\:mm}.";
 
-            // Regla 5: No exceder duración máxima
+            // Regla 5: Duración no excede el máximo
             TimeSpan duracion = reserva.HoraFin - reserva.HoraInicio;
-            if (duracion > duracionMaxima)
-            {
-                return $" La duración máxima es de {duracionMaxima.TotalHours} horas.";
-            }
+            if (duracion.TotalMinutes > Configuracion.DuracionMaximaMinutos)
+                return $" La reserva no puede durar más de {Configuracion.DuracionMaximaMinutos / 60} horas.";
 
-            // Regla 6: No superar capacidad de la mesa
-            if (reserva.CantidadPersonas > mesa.Capacidad)
-            {
-                return $" La mesa solo admite {mesa.Capacidad} personas.";
-            }
+            // Regla 6: No superar la capacidad de la mesa
+            if (reserva.CantidadPersonas > capacidadMesa)
+                return $" Esta mesa solo tiene capacidad para {capacidadMesa} personas.";
 
             // Regla 7: No chocar con otra reserva
-            List<Reserva> ocupadas = _datos.ObtenerReservasPorMesaYFecha(mesa.Id, reserva.Fecha);
-            foreach (var otra in ocupadas)
-            {
-                bool hayChoque = reserva.HoraInicio < otra.HoraFin && reserva.HoraFin > otra.HoraInicio;
-                if (hayChoque)
-                {
-                    return $" Conflicto con reserva de {otra.HoraInicio:hh\\:mm} a {otra.HoraFin:hh\\:mm}.";
-                }
-            }
+            bool hayChoque = reservasExistentes.Any(r =>
+                reserva.HoraInicio < r.HoraFin && reserva.HoraFin > r.HoraInicio);
+            if (hayChoque)
+                return " Esta mesa ya tiene una reserva en ese horario.";
 
-            // Todo correcto
-            return "";
-        }
-
-        public bool GuardarReserva(Reserva reserva)
-        {
-            return _datos.AgregarReserva(reserva);
-        }
-
-        public List<Reserva> ObtenerReservas(int mesaId, DateTime fecha)
-        {
-            return _datos.ObtenerReservasPorMesaYFecha(mesaId, fecha);
+            return ""; //  Todo correcto
         }
     }
 }

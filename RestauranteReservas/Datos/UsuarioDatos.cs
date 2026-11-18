@@ -62,7 +62,8 @@ namespace RestauranteReservas.Datos
                 u.NombreUsuario.Equals(nombreUsuario, StringComparison.OrdinalIgnoreCase));
         }
 
-        //  Método que usa FrmLogin para validar acceso
+        //
+        // Método que usa FrmLogin para validar acceso
         public Usuario? ValidarUsuario(string nombreUsuario, string contrasenia)
         {
             return _usuarios.FirstOrDefault(u =>
@@ -70,23 +71,33 @@ namespace RestauranteReservas.Datos
                 u.Contrasenia == contrasenia);
         }
 
+        //  Verifica si el nombre de usuario ya existe
         public bool ExisteUsuario(string nombreUsuario)
         {
             return _usuarios.Any(u =>
                 u.NombreUsuario.Equals(nombreUsuario, StringComparison.OrdinalIgnoreCase));
         }
 
+        //  Verifica si el correo ya está registrado
         public bool ExisteCorreo(string correo)
         {
             return _usuarios.Any(u =>
+                !string.IsNullOrEmpty(u.Correo) &&
                 u.Correo.Equals(correo, StringComparison.OrdinalIgnoreCase));
         }
 
-        //  Método que usa FrmRegistro para guardar usuarios nuevos
+        //  Agrega un nuevo usuario
         public bool Agregar(Usuario usuario)
         {
             try
             {
+                // Verificar que no exista antes de agregar
+                if (ExisteUsuario(usuario.NombreUsuario) ||
+                    !string.IsNullOrEmpty(usuario.Correo) && ExisteCorreo(usuario.Correo))
+                {
+                    return false;
+                }
+
                 usuario.Id = _usuarios.Count + 1;
                 _usuarios.Add(usuario);
                 return true;
