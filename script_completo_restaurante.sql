@@ -1,0 +1,169 @@
+-- ============================================
+-- SCRIPT COMPLETO: BASE DE DATOS RESTAURANTE
+-- ============================================
+
+CREATE DATABASE IF NOT EXISTS restaurante;
+USE restaurante;
+
+-- ============================================
+-- TABLA 1: usuario
+-- ============================================
+CREATE TABLE IF NOT EXISTS usuario (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    nombre_usuario VARCHAR(50) NOT NULL UNIQUE,
+    contrasenia VARCHAR(100) NOT NULL,
+    telefono VARCHAR(20),
+    correo VARCHAR(100),
+    rol VARCHAR(20) NOT NULL
+);
+
+-- ============================================
+-- TABLA 2: configuracion
+-- ============================================
+CREATE TABLE IF NOT EXISTS configuracion (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    clave VARCHAR(50) NOT NULL UNIQUE,
+    valor VARCHAR(255) NOT NULL,
+    descripcion TEXT
+);
+
+-- ============================================
+-- TABLA 3: mesa
+-- ============================================
+CREATE TABLE IF NOT EXISTS mesa (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    numero INT NOT NULL UNIQUE,
+    capacidad INT NOT NULL,
+    ubicacion VARCHAR(100),
+    estado VARCHAR(20) DEFAULT 'Disponible'
+);
+
+-- ============================================
+-- TABLA 4: reserva
+-- ============================================
+CREATE TABLE IF NOT EXISTS reserva (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    mesa_id INT NOT NULL,
+    nombre_cliente VARCHAR(100) NOT NULL,
+    telefono_cliente VARCHAR(20),
+    fecha DATE NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    personas INT NOT NULL,
+    observaciones TEXT,
+    estado VARCHAR(20) DEFAULT 'Pendiente',
+    FOREIGN KEY (mesa_id) REFERENCES mesa(id) ON DELETE CASCADE
+);
+
+-- ============================================
+-- TABLA 5: categoria_plato
+-- ============================================
+CREATE TABLE IF NOT EXISTS categoria_plato (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(50) NOT NULL,
+    descripcion TEXT
+);
+
+-- ============================================
+-- TABLA 6: plato
+-- ============================================
+CREATE TABLE IF NOT EXISTS plato (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    precio DECIMAL(10,2) NOT NULL,
+    categoria_id INT NOT NULL,
+    disponible BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (categoria_id) REFERENCES categoria_plato(id) ON DELETE CASCADE
+);
+
+-- ============================================
+-- TABLA 7: factura
+-- ============================================
+CREATE TABLE IF NOT EXISTS factura (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    reserva_id INT,
+    fecha_emision DATE NOT NULL,
+    subtotal DECIMAL(10,2) NOT NULL,
+    servicio DECIMAL(10,2) NOT NULL,
+    iva DECIMAL(10,2) NOT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    nombre_cliente VARCHAR(100),
+    FOREIGN KEY (reserva_id) REFERENCES reserva(id) ON DELETE SET NULL
+);
+
+-- ============================================
+-- TABLA 8: detalle_factura
+-- ============================================
+CREATE TABLE IF NOT EXISTS detalle_factura (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    factura_id INT NOT NULL,
+    plato_id INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10,2) NOT NULL,
+    subtotal_item DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (factura_id) REFERENCES factura(id) ON DELETE CASCADE,
+    FOREIGN KEY (plato_id) REFERENCES plato(id) ON DELETE CASCADE
+);
+
+-- ============================================
+-- DATOS DE PRUEBA
+-- ============================================
+
+-- Usuarios
+INSERT INTO usuario (nombre, nombre_usuario, contrasenia, telefono, correo, rol) VALUES
+('Administrador', 'admin', 'Uisil2026', '', '', 'Administrador'),
+('Susety Salazar', 'susety', 'Uisil2026', '', '', 'Administrador'),
+('Cliente Uno', 'cliente1', 'cliente123', '', '', 'Cliente'),
+('Cliente Dos', 'cliente2', 'cliente123', '', '', 'Cliente');
+
+-- Configuración del restaurante
+INSERT INTO configuracion (clave, valor, descripcion) VALUES
+('hora_apertura', '07:00', 'Hora de apertura del restaurante'),
+('hora_cierre', '22:00', 'Hora de cierre del restaurante'),
+('servicio_porcentaje', '10', 'Porcentaje de servicio'),
+('iva_porcentaje', '13', 'Porcentaje de IVA');
+
+-- Mesas (10 mesas)
+INSERT INTO mesa (numero, capacidad, ubicacion, estado) VALUES
+(1, 2, 'Ventana', 'Disponible'),
+(2, 2, 'Ventana', 'Disponible'),
+(3, 4, 'Centro', 'Disponible'),
+(4, 4, 'Centro', 'Disponible'),
+(5, 6, 'Terraza', 'Disponible'),
+(6, 2, 'Interior', 'Fuera de servicio'),
+(7, 4, 'Interior', 'Disponible'),
+(8, 2, 'Terraza', 'Disponible'),
+(9, 4, 'Ventana', 'Disponible'),
+(10, 6, 'Salón principal', 'Disponible');
+
+-- Categorías de platos
+INSERT INTO categoria_plato (nombre, descripcion) VALUES
+('Entradas', 'Platos para iniciar la comida'),
+('Platos Fuertes', 'Platos principales'),
+('Postres', 'Dulces y postres caseros'),
+('Bebidas', 'Bebidas frías y calientes');
+
+-- Platos (12 platos)
+INSERT INTO plato (nombre, descripcion, precio, categoria_id, disponible) VALUES
+('Ensalada César', 'Lechuga, aderezo, crotones y queso parmesano', 5.50, 1, TRUE),
+('Sopa de verduras', 'Sopa casera con verduras frescas', 4.00, 1, TRUE),
+('Arroz con pollo', 'Arroz con pollo, verduras y especias', 8.50, 2, TRUE),
+('Filete de pescado', 'Pescado fresco a la plancha con guarnición', 12.00, 2, TRUE),
+('Carne asada', 'Carne de res con arroz y ensalada', 11.50, 2, TRUE),
+('Pasta carbonara', 'Pasta con crema, tocino y queso', 9.50, 2, TRUE),
+('Tres leches', 'Pastel empapado en tres tipos de leche', 4.50, 3, TRUE),
+('Flan de vainilla', 'Flan casero con caramelo', 3.50, 3, TRUE),
+('Helado de vainilla', 'Helado cremoso con salsa de frutas', 3.00, 3, TRUE),
+('Jugo natural', 'Jugo fresco de fruta de temporada', 2.50, 4, TRUE),
+('Café negro', 'Café de grano costarricense', 2.00, 4, TRUE),
+('Agua mineral', 'Agua embotellada', 1.50, 4, TRUE);
+
+-- Reservas de ejemplo
+INSERT INTO reserva (mesa_id, nombre_cliente, telefono_cliente, fecha, hora_inicio, hora_fin, personas, observaciones, estado) VALUES
+(2, 'María Pérez', '8888-1111', '2026-11-24', '11:00', '13:00', 2, 'Celebración de cumpleaños', 'Confirmada'),
+(4, 'Juan González', '8888-2222', '2026-11-24', '13:00', '15:00', 3, 'Preferencia cerca de ventana', 'Confirmada'),
+(5, 'Ana Chaves', '8888-3333', '2026-11-25', '18:00', '20:00', 5, 'Mesa para cena familiar', 'Pendiente'),
+(7, 'Carlos Mora', '8888-4444', '2026-11-26', '12:00', '14:00', 4, 'Almuerzo de negocios', 'Confirmada'),
+(9, 'Luisa Ramírez', '8888-5555', '2026-11-27', '19:00', '21:00', 2, 'Cena romántica', 'Pendiente');
