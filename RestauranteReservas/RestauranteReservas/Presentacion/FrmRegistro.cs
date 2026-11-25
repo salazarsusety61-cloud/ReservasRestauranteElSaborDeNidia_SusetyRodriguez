@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
-using RestauranteReservas.Datos;
-using RestauranteReservas.Entidades;
+using RestauranteReservas.RestauranteReservas.Datos;
+using RestauranteReservas.RestauranteReservas.Entidades;
 
 namespace RestauranteReservas.Presentacion
 {

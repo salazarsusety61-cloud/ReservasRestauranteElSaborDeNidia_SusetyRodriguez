@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using RestauranteReservas.Datos;
-using RestauranteReservas.Entidades;
+using RestauranteReservas.RestauranteReservas.Datos;
+using RestauranteReservas.RestauranteReservas.Entidades;
 
 namespace RestauranteReservas.Presentacion
 {
@@ -341,6 +341,10 @@ namespace RestauranteReservas.Presentacion
         private void FrmPlano_Load(object sender, EventArgs e)
         {
 
+        }
+        private void btnFactura_Click(object sender, EventArgs e)
+        {
+            new Presentacion.FrmFactura().ShowDialog();
         }
 
         private void lblLeyenda_Click(object sender, EventArgs e)

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
-using RestauranteReservas.Datos;
-using RestauranteReservas.Entidades;
 using RestauranteReservas.Presentacion;
+using RestauranteReservas.RestauranteReservas.Datos;
+using RestauranteReservas.RestauranteReservas.Entidades;
 
 namespace RestauranteReservas.Presentacion
 {
@@ -27,7 +27,7 @@ namespace RestauranteReservas.Presentacion
                 return;
             }
 
-            Usuario usuarioEncontrado = _usuarioDatos.ValidarUsuario(usuario, contrasenia);
+            Usuario? usuarioEncontrado = _usuarioDatos.ValidarUsuario(usuario, contrasenia);
 
             if (usuarioEncontrado != null)
             {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using RestauranteReservas.Entidades;
+using RestauranteReservas.RestauranteReservas.Entidades;
 
-namespace RestauranteReservas.Datos
+namespace RestauranteReservas.RestauranteReservas.Datos
 {
     public class MesaDatos
     {
