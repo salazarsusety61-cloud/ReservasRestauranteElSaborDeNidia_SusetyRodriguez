@@ -1,50 +1,199 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using RestauranteReservas.RestauranteReservas.Entidades;
+using MySqlConnector;
 
-namespace RestauranteReservas.RestauranteReservas.Datos
+namespace RestauranteReservas.Datos
 {
-    public class MesaDatos
+    // =====================================================================
+    // Tabla: mesa (plano del restaurante).
+    // El plano se carga con Listar(); los colores y el horario no vienen
+    // aqui, los trae ConfiguracionDatos. CP-05: un cambio hecho en Workbench
+    // aparece al recargar porque siempre se lee de la tabla.
+    // =====================================================================
+    public static class MesaDatos
     {
-        private static List<Mesa> _listaMesas = new List<Mesa>();
-
-        // Constructor con las 10 mesas creadas
-        public MesaDatos()
+        public class FilaMesa
         {
-            if (_listaMesas.Count == 0)
+            public int Id;
+            public int Numero;
+            public int Capacidad;
+            public string Forma = "";      // redonda, cuadrada, rectangular
+            public int PosicionX;
+            public int PosicionY;
+            public bool FueraServicio;
+        }
+
+        // Lectura del plano: una fila por mesa.
+        public static List<FilaMesa> Listar()
+        {
+            var lista = new List<FilaMesa>();
+
+            try
             {
-                CrearMesasIniciales();
+                using (var cn = ConexionBD.ObtenerConexion())
+                {
+                    cn.Open();
+                    const string sql = @"SELECT id, numero, capacidad, forma,
+                                                posicion_x, posicion_y, fuera_servicio
+                                         FROM mesa
+                                         ORDER BY numero;";
+                    using (var cmd = new MySqlCommand(sql, cn))
+                    using (var leer = cmd.ExecuteReader())
+                    {
+                        while (leer.Read())
+                            lista.Add(LeerFila(leer));
+                    }
+                }
+            }
+            catch (MySqlException)
+            {
+                lista = new List<FilaMesa>();
+            }
+
+            return lista;
+        }
+
+        public static FilaMesa ObtenerPorId(int id)
+        {
+            try
+            {
+                using (var cn = ConexionBD.ObtenerConexion())
+                {
+                    cn.Open();
+                    const string sql = @"SELECT id, numero, capacidad, forma,
+                                                posicion_x, posicion_y, fuera_servicio
+                                         FROM mesa WHERE id = @id;";
+                    using (var cmd = new MySqlCommand(sql, cn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        using (var leer = cmd.ExecuteReader())
+                        {
+                            return leer.Read() ? LeerFila(leer) : null;
+                        }
+                    }
+                }
+            }
+            catch (MySqlException)
+            {
+                return null;
             }
         }
 
-        private void CrearMesasIniciales()
+        // CP-09: capacidad que valida la Logica al crear la reserva.
+        public static int CapacidadDe(int idMesa)
         {
-            _listaMesas.Add(new Mesa { Id = 1, Nombre = "Mesa 1", Capacidad = 4, Estado = "Disponible", PosicionX = 30, PosicionY = 30 });
-            _listaMesas.Add(new Mesa { Id = 2, Nombre = "Mesa 2", Capacidad = 4, Estado = "Disponible", PosicionX = 110, PosicionY = 30 });
-            _listaMesas.Add(new Mesa { Id = 3, Nombre = "Mesa 3", Capacidad = 2, Estado = "Fuera de Servicio", PosicionX = 190, PosicionY = 30 });
-            _listaMesas.Add(new Mesa { Id = 4, Nombre = "Mesa 4", Capacidad = 6, Estado = "Disponible", PosicionX = 30, PosicionY = 120 });
-            _listaMesas.Add(new Mesa { Id = 5, Nombre = "Mesa 5", Capacidad = 4, Estado = "Disponible", PosicionX = 110, PosicionY = 120 });
-            _listaMesas.Add(new Mesa { Id = 6, Nombre = "Mesa 6", Capacidad = 4, Estado = "Disponible", PosicionX = 190, PosicionY = 120 });
-            _listaMesas.Add(new Mesa { Id = 7, Nombre = "Mesa 7", Capacidad = 4, Estado = "Disponible", PosicionX = 30, PosicionY = 210 });
-            _listaMesas.Add(new Mesa { Id = 8, Nombre = "Mesa 8", Capacidad = 2, Estado = "Fuera de Servicio", PosicionX = 110, PosicionY = 210 });
-            _listaMesas.Add(new Mesa { Id = 9, Nombre = "Mesa 9", Capacidad = 4, Estado = "Disponible", PosicionX = 190, PosicionY = 210 });
-            _listaMesas.Add(new Mesa { Id = 10, Nombre = "Mesa 10", Capacidad = 6, Estado = "Disponible", PosicionX = 270, PosicionY = 210 });
+            var mesa = ObtenerPorId(idMesa);
+            return mesa == null ? 0 : mesa.Capacidad;
         }
 
-        public List<Mesa> Listar()
+        // Cambia el estado fuera de servicio (el plano la pinta con el color
+        // configurado para ese estado).
+        public static ResultadoDatos MarcarFueraServicio(int idMesa, bool fuera)
         {
-            return _listaMesas;
-        }
-
-        // "GUARDAR CAMBIOS"
-        public void GuardarCambios(Mesa mesaActualizada)
-        {
-            var mesaEnLista = _listaMesas.FirstOrDefault(m => m.Id == mesaActualizada.Id);
-            if (mesaEnLista != null)
+            var r = new ResultadoDatos();
+            try
             {
-                mesaEnLista.Estado = mesaActualizada.Estado;
+                using (var cn = ConexionBD.ObtenerConexion())
+                {
+                    cn.Open();
+                    const string sql = @"UPDATE mesa SET fuera_servicio = @fs WHERE id = @id;";
+                    using (var cmd = new MySqlCommand(sql, cn))
+                    {
+                        cmd.Parameters.AddWithValue("@fs", fuera);
+                        cmd.Parameters.AddWithValue("@id", idMesa);
+                        r.Exito = cmd.ExecuteNonQuery() > 0;
+                        r.Mensaje = r.Exito ? "OK" : "Mesa no encontrada.";
+                    }
+                }
             }
+            catch (MySqlException ex)
+            {
+                r.Mensaje = "MySQL " + ex.Number + ": " + ex.Message;
+            }
+            catch (Exception ex)
+            {
+                r.Mensaje = ex.Message;
+            }
+            return r;
+        }
+
+        // Guardar nueva mesa o modificar la existente (Id = 0 es agregar).
+        public static ResultadoDatos Guardar(FilaMesa mesa)
+        {
+            var r = new ResultadoDatos();
+            if (mesa == null || mesa.Capacidad <= 0 || string.IsNullOrWhiteSpace(mesa.Forma))
+            {
+                r.Mensaje = "La capacidad y la forma son obligatorias.";
+                return r;
+            }
+
+            try
+            {
+                using (var cn = ConexionBD.ObtenerConexion())
+                {
+                    cn.Open();
+                    string sql;
+                    if (mesa.Id == 0)
+                    {
+                        sql = @"INSERT INTO mesa (numero, capacidad, forma, posicion_x, posicion_y, fuera_servicio)
+                                VALUES (@numero, @cap, @forma, @x, @y, @fs);
+                                SELECT LAST_INSERT_ID();";
+                    }
+                    else
+                    {
+                        sql = @"UPDATE mesa SET numero = @numero, capacidad = @cap, forma = @forma,
+                                                posicion_x = @x, posicion_y = @y, fuera_servicio = @fs
+                                WHERE id = @id;";
+                    }
+
+                    using (var cmd = new MySqlCommand(sql, cn))
+                    {
+                        cmd.Parameters.AddWithValue("@numero", mesa.Numero);
+                        cmd.Parameters.AddWithValue("@cap", mesa.Capacidad);
+                        cmd.Parameters.AddWithValue("@forma", mesa.Forma);
+                        cmd.Parameters.AddWithValue("@x", mesa.PosicionX);
+                        cmd.Parameters.AddWithValue("@y", mesa.PosicionY);
+                        cmd.Parameters.AddWithValue("@fs", mesa.FueraServicio);
+                        if (mesa.Id != 0) cmd.Parameters.AddWithValue("@id", mesa.Id);
+
+                        if (mesa.Id == 0)
+                        {
+                            r.IdGenerado = Convert.ToInt32(cmd.ExecuteScalar());
+                            r.Exito = true;
+                        }
+                        else
+                        {
+                            r.Exito = cmd.ExecuteNonQuery() > 0;
+                        }
+                        r.Mensaje = r.Exito ? "OK" : "No se guardó la mesa.";
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                r.Mensaje = ex.Number == 1062
+                    ? "Ese número de mesa ya existe."
+                    : "MySQL " + ex.Number + ": " + ex.Message;
+            }
+            catch (Exception ex)
+            {
+                r.Mensaje = ex.Message;
+            }
+            return r;
+        }
+
+        private static FilaMesa LeerFila(MySqlDataReader leer)
+        {
+            return new FilaMesa
+            {
+                Id = leer.GetInt32(leer.GetOrdinal("id")),
+                Numero = leer.GetInt32(leer.GetOrdinal("numero")),
+                Capacidad = leer.GetInt32(leer.GetOrdinal("capacidad")),
+                Forma = leer.GetString(leer.GetOrdinal("forma")),
+                PosicionX = leer.GetInt32(leer.GetOrdinal("posicion_x")),
+                PosicionY = leer.GetInt32(leer.GetOrdinal("posicion_y")),
+                FueraServicio = leer.GetBoolean(leer.GetOrdinal("fuera_servicio"))
+            };
         }
     }
 }

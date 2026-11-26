@@ -1,15 +1,13 @@
-﻿using System;
-using System.Windows.Forms;
-using RestauranteReservas.Presentacion;
-using RestauranteReservas.RestauranteReservas.Datos;
+﻿using RestauranteReservas.Datos;
+using RestauranteReservas.Entidades;
 using RestauranteReservas.RestauranteReservas.Entidades;
+using System;
+using System.Windows.Forms;
 
 namespace RestauranteReservas.Presentacion
 {
     public partial class FrmLogin : Form
     {
-        private UsuarioDatos _usuarioDatos = new UsuarioDatos();
-
         public FrmLogin()
         {
             InitializeComponent();
@@ -27,7 +25,7 @@ namespace RestauranteReservas.Presentacion
                 return;
             }
 
-            Usuario? usuarioEncontrado = _usuarioDatos.ValidarUsuario(usuario, contrasenia);
+            Usuario? usuarioEncontrado = UsuarioDatos.ValidarUsuario(usuario, contrasenia);
 
             if (usuarioEncontrado != null)
             {
@@ -54,7 +52,7 @@ namespace RestauranteReservas.Presentacion
 
         private void txtContrasenia_TexChanger(object sender, EventArgs e)
         {
-            // Vacío, no hay problema
+            // Vacío
         }
     }
 }

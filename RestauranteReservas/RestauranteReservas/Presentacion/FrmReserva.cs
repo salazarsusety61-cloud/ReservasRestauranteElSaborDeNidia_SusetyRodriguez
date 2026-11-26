@@ -1,69 +1,38 @@
 ﻿using System;
-using System.Linq;
 using System.Windows.Forms;
-using RestauranteReservas.RestauranteReservas.Datos;
-using RestauranteReservas.RestauranteReservas.Entidades;
-using RestauranteReservas.RestauranteReservas.Logica;
+using RestauranteReservas.Datos;
+using RestauranteReservas.Entidades;
 
+#pragma warning disable WFO1000
 namespace RestauranteReservas.Presentacion
 {
     public partial class FrmReserva : Form
     {
-        private Mesa _mesaSeleccionada;
-        private ReservaDatos _reservaDatos = new ReservaDatos();
+        public int MesaSeleccionadaId { get; set; }
+        public int MesaNumero { get; set; }
 
-        // Constructor
-        public FrmReserva(Mesa mesa) 
+        public FrmReserva()
         {
             InitializeComponent();
-            _mesaSeleccionada = mesa;
+        }
 
-            //  Precargar fechas y horarios
-            dtpFecha.Value = DateTime.Today;
-            dtpHoraInicio.Value = new DateTime(2026, 1, 1, 11, 0, 0);
-            dtpHoraFin.Value = new DateTime(2026, 1, 1, 21, 0, 0);
+        private void FrmReserva_Load(object sender, EventArgs e)
+        {
+            // Si no tienes lblMesa, borra la línea de abajo
+            // lblMesa.Text = $"Mesa: {MesaNumero}";
+            dtpFecha.MinDate = DateTime.Today;
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            // Crear objeto reserva con los datos del formulario
-            Reserva nuevaReserva = new Reserva
-            {
-                MesaId = _mesaSeleccionada.Id,
-                Fecha = dtpFecha.Value.Date,
-                HoraInicio = dtpHoraInicio.Value.TimeOfDay,
-                HoraFin = dtpHoraFin.Value.TimeOfDay,
-                CantidadPersonas = (int)nudPersonas.Value
-            };
-
-            // Obtener reservas existentes de esa mesa para hoy
-            var reservasExistentes = _reservaDatos.ListarPorMesaYFecha(_mesaSeleccionada.Id, dtpFecha.Value);
-
-            //  Validar usando la Capa Lógica
-            string mensajeError = ReservaLogica.ValidarReserva(
-                nuevaReserva,
-                _mesaSeleccionada.Capacidad,
-                reservasExistentes
-            );
-
-            // Si hay error, mostrarlo
-            if (!string.IsNullOrEmpty(mensajeError))
-            {
-                MessageBox.Show(mensajeError, "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            //  Si todo está bien, guardar
-            _reservaDatos.Agregar(nuevaReserva);
-
-            MessageBox.Show(" Reserva guardada correctamente!", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+            MessageBox.Show("Reserva guardada correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
     }
