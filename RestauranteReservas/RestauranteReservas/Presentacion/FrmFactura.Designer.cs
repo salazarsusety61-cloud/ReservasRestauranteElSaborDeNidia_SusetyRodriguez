@@ -60,16 +60,16 @@
             // dgvDetalleFactura
             // 
             dgvDetalleFactura.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvDetalleFactura.Location = new Point(39, 101);
+            dgvDetalleFactura.Location = new Point(40, 107);
             dgvDetalleFactura.Name = "dgvDetalleFactura";
             dgvDetalleFactura.RowHeadersWidth = 51;
-            dgvDetalleFactura.Size = new Size(674, 220);
+            dgvDetalleFactura.Size = new Size(674, 98);
             dgvDetalleFactura.TabIndex = 2;
             // 
             // lblSubtotal
             // 
             lblSubtotal.AutoSize = true;
-            lblSubtotal.Location = new Point(40, 346);
+            lblSubtotal.Location = new Point(43, 257);
             lblSubtotal.Name = "lblSubtotal";
             lblSubtotal.Size = new Size(88, 20);
             lblSubtotal.TabIndex = 3;
@@ -78,7 +78,7 @@
             // lblServicio
             // 
             lblServicio.AutoSize = true;
-            lblServicio.Location = new Point(40, 383);
+            lblServicio.Location = new Point(40, 299);
             lblServicio.Name = "lblServicio";
             lblServicio.Size = new Size(126, 20);
             lblServicio.TabIndex = 4;
@@ -87,7 +87,7 @@
             // lblIVA
             // 
             lblIVA.AutoSize = true;
-            lblIVA.Location = new Point(39, 421);
+            lblIVA.Location = new Point(43, 338);
             lblIVA.Name = "lblIVA";
             lblIVA.Size = new Size(92, 20);
             lblIVA.TabIndex = 5;
@@ -96,7 +96,7 @@
             // lblTotal
             // 
             lblTotal.AutoSize = true;
-            lblTotal.Location = new Point(40, 469);
+            lblTotal.Location = new Point(43, 385);
             lblTotal.Name = "lblTotal";
             lblTotal.Size = new Size(65, 20);
             lblTotal.TabIndex = 6;
@@ -104,7 +104,7 @@
             // 
             // btnDescargarPDF
             // 
-            btnDescargarPDF.Location = new Point(492, 469);
+            btnDescargarPDF.Location = new Point(643, 367);
             btnDescargarPDF.Name = "btnDescargarPDF";
             btnDescargarPDF.Size = new Size(94, 29);
             btnDescargarPDF.TabIndex = 7;
@@ -116,7 +116,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 534);
+            ClientSize = new Size(800, 439);
             Controls.Add(btnDescargarPDF);
             Controls.Add(lblTotal);
             Controls.Add(lblIVA);
@@ -127,6 +127,7 @@
             Controls.Add(lblNumeroFactura);
             Name = "FrmFactura";
             Text = "FrmFactura";
+            Load += FrmFactura_Load;
             ((System.ComponentModel.ISupportInitialize)dgvDetalleFactura).EndInit();
             ResumeLayout(false);
             PerformLayout();

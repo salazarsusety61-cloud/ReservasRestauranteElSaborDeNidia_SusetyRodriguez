@@ -14,7 +14,7 @@ namespace RestauranteReservas.Datos
         {
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"SELECT COUNT(1) FROM factura WHERE reserva_id = @id;";
@@ -37,7 +37,7 @@ namespace RestauranteReservas.Datos
             var r = new ResultadoDatos();
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"INSERT INTO factura
@@ -76,7 +76,7 @@ namespace RestauranteReservas.Datos
         {
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"DELETE FROM factura WHERE reserva_id = @id;";

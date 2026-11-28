@@ -42,7 +42,7 @@ namespace RestauranteReservas.Datos
             var lista = new List<FilaReserva>();
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"SELECT r.id, r.usuario_id, u.nombre AS cliente,
@@ -77,7 +77,7 @@ namespace RestauranteReservas.Datos
             var lista = new List<FilaReserva>();
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"SELECT r.id, r.usuario_id, u.nombre AS cliente,
@@ -114,7 +114,7 @@ namespace RestauranteReservas.Datos
         {
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"SELECT COUNT(1) FROM reserva
@@ -148,7 +148,7 @@ namespace RestauranteReservas.Datos
             var r = new ResultadoDatos();
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"INSERT INTO reserva
@@ -193,7 +193,7 @@ namespace RestauranteReservas.Datos
             var r = new ResultadoDatos();
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"UPDATE reserva SET mesa_id = @mesa, fecha = @fecha,
@@ -238,7 +238,7 @@ namespace RestauranteReservas.Datos
             }
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"UPDATE reserva SET estado = @estado WHERE id = @id;";
@@ -267,7 +267,7 @@ namespace RestauranteReservas.Datos
             MySqlTransaction tx = null;
             try
             {
-                cn = ConexionBD.ObtenerConexion();
+                cn = Conexion.ObtenerConexion();
                 cn.Open();
                 tx = cn.BeginTransaction();
 

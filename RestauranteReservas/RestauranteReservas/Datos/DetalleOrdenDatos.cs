@@ -27,7 +27,7 @@ namespace RestauranteReservas.Datos
             var lista = new List<FilaDetalle>();
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"SELECT d.id, d.reserva_id, d.plato_id, p.nombre AS plato,
@@ -65,7 +65,7 @@ namespace RestauranteReservas.Datos
 
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"INSERT INTO detalle_orden
@@ -102,7 +102,7 @@ namespace RestauranteReservas.Datos
         {
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"DELETE FROM detalle_orden WHERE reserva_id = @reserva;";

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
 using RestauranteReservas.Datos;
-using RestauranteReservas.Entidades;
 
 namespace RestauranteReservas.Presentacion
 {
@@ -11,10 +10,12 @@ namespace RestauranteReservas.Presentacion
         {
             InitializeComponent();
         }
+
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             try
             {
+                // Validaciones
                 if (string.IsNullOrWhiteSpace(txtNombre.Text))
                 {
                     MessageBox.Show("Escribe el nombre del plato.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -23,35 +24,33 @@ namespace RestauranteReservas.Presentacion
 
                 if (!decimal.TryParse(txtPrecio.Text, out decimal precio) || precio < 0)
                 {
-                    MessageBox.Show("El precio debe ser un número válido.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("El precio debe ser un número mayor o igual a cero.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                if (cboCategoria.SelectedIndex < 0)
-                {
-                    MessageBox.Show("Selecciona una categoría.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+                string descripcion = string.IsNullOrWhiteSpace(txtDescripcion.Text) ? "" : txtDescripcion.Text.Trim();
+                int? tiempoPreparacion = string.IsNullOrWhiteSpace(txtTiempo.Text)
+                    ? null
+                    : int.TryParse(txtTiempo.Text, out int t) ? t : (int?)null;
+                bool disponible = chkDisponible.Checked;
 
-                //  Usamos el objeto completo en lugar de pasar cada dato separado
-                var plato = new Plato
-                {
-                    Nombre = txtNombre.Text.Trim(),
-                    Precio = precio,
-                    CategoriaId = (int)cboCategoria.SelectedValue,
-                    Disponible = true
-                };
-
-                bool exito = PlatoDatos.Agregar(plato);
+                // Llamada con TODOS los parámetros: nombre, descripcion, precio, tiempo, disponible
+                bool exito = PlatoDatos.Agregar(
+                    txtNombre.Text.Trim(),
+                    descripcion,
+                    precio,
+                    tiempoPreparacion,
+                    disponible ? 1 : 0
+                );
 
                 if (exito)
                 {
-                    MessageBox.Show(" Plato guardado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Plato guardado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LimpiarCampos();
                 }
                 else
                 {
-                    MessageBox.Show(" No se pudo guardar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("No se pudo guardar el plato.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
@@ -60,45 +59,18 @@ namespace RestauranteReservas.Presentacion
             }
         }
 
-
-        private void btnDesactivar_Click(object sender, EventArgs e)
+        private void btnCancelar_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(txtNombre.Text))
-                {
-                    MessageBox.Show("Escribe el nombre del plato primero.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                if (MessageBox.Show("¿Seguro que quieres desactivar este plato?",
-                    "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                {
-                    int idPlato = 1; // ← Cambia este 1 por el ID real del plato
-                    var resultado = PlatoDatos.Desactivar(idPlato);
-
-                    if (resultado.Exito)
-                    {
-                        MessageBox.Show(" Plato desactivado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LimpiarCampos();
-                    }
-                    else
-                    {
-                        MessageBox.Show(" " + resultado.Mensaje, "No se pudo desactivar", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            this.Close();
         }
 
         private void LimpiarCampos()
         {
             txtNombre.Clear();
+            txtDescripcion.Clear();
             txtPrecio.Clear();
-            cboCategoria.SelectedIndex = -1;
+            txtTiempo.Clear();
+            chkDisponible.Checked = true;
             txtNombre.Focus();
         }
     }

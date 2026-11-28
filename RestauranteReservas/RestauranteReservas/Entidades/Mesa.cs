@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 
-namespace RestauranteReservas.RestauranteReservas.Entidades
+namespace RestauranteReservas.Entidades
 {
     public class Mesa
     {
         public int Id { get; set; }
-        public string Nombre { get; set; } = string.Empty;
+        public int Numero { get; set; }
         public int Capacidad { get; set; }
-        public string Forma { get; set; } = "Cuadrada";
-        public string Estado { get; set; } = "Disponible";
-        public int PosicionX { get; set; }
-        public int PosicionY { get; set; }
+        public string Forma { get; set; } = "";
+        public string Ubicacion { get; set; } = "";
+        public bool Disponible { get; set; } = true;
+        public bool EstaReservada { get; set; } = false;
     }
 }

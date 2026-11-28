@@ -1,8 +1,7 @@
 ﻿using RestauranteReservas.Datos;
-using RestauranteReservas.Entidades;
-using RestauranteReservas.RestauranteReservas.Entidades;
 using System;
 using System.Windows.Forms;
+using static RestauranteReservas.Datos.UsuarioDatos;
 
 namespace RestauranteReservas.Presentacion
 {
@@ -11,6 +10,7 @@ namespace RestauranteReservas.Presentacion
         public FrmLogin()
         {
             InitializeComponent();
+            // Ocultar contraseña
             txtContrasenia.PasswordChar = '●';
         }
 
@@ -19,40 +19,63 @@ namespace RestauranteReservas.Presentacion
             string usuario = txtUsuario.Text.Trim();
             string contrasenia = txtContrasenia.Text;
 
+            // Validar campos vacíos
             if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(contrasenia))
             {
                 lblMensaje.Text = "Complete todos los campos";
+                lblMensaje.ForeColor = System.Drawing.Color.Orange;
                 return;
             }
 
-            Usuario? usuarioEncontrado = UsuarioDatos.ValidarUsuario(usuario, contrasenia);
-
-            if (usuarioEncontrado != null)
+            try
             {
-                MessageBox.Show($"Bienvenido, {usuarioEncontrado.Nombre}!",
-                    "Ingreso Exitoso",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                // ✅ Usamos el método que SÍ existe en tu archivo UsuarioDatos.cs
+                ResultadoLogin resultado = UsuarioDatos.ValidarLogin(usuario, contrasenia);
 
-                FrmPlano frmPlano = new FrmPlano();
-                frmPlano.Show();
-                this.Hide();
+                if (resultado.Exito)
+                {
+                    lblMensaje.Text = "";
+                    this.Hide();
+                    FrmPlano frmPlano = new FrmPlano();
+                    frmPlano.ShowDialog();
+                    this.Close();
+                }
+                else
+                {
+                    lblMensaje.Text = resultado.Mensaje;
+                    lblMensaje.ForeColor = System.Drawing.Color.Red;
+                    txtContrasenia.Clear();
+                    txtContrasenia.Focus();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                lblMensaje.Text = "Usuario o contraseña incorrectos";
+                lblMensaje.Text = "Error: " + ex.Message;
+                lblMensaje.ForeColor = System.Drawing.Color.Red;
             }
         }
 
-        private void btnRegistrar_Click(object sender, EventArgs e)
+        private void btnCancelar_Click(object sender, EventArgs e)
         {
-            FrmRegistro registro = new FrmRegistro();
-            registro.ShowDialog();
+            Application.Exit();
         }
 
-        private void txtContrasenia_TexChanger(object sender, EventArgs e)
+        private void txtUsuario_KeyDown(object sender, KeyEventArgs e)
         {
-            // Vacío
+            if (e.KeyCode == Keys.Enter)
+            {
+                txtContrasenia.Focus();
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        private void txtContrasenia_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnIngresar.PerformClick();
+                e.SuppressKeyPress = true;
+            }
         }
     }
 }

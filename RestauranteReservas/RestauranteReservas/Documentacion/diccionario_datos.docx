@@ -1,0 +1,49 @@
+DICCIONARIO DE DATOS — VetControl
+Tabla: especie
+Campo	Tipo	Restricciones	Descripción	Equivalente en C#
+id_especie	INT	PK, AUTO_INCREMENT	Identificador de especie	No existe
+nombre	VARCHAR(30)	NOT NULL, UNIQUE	Nombre de la especie	Propiedad Especie
+Campo	Tipo	Restricciones	Descripción	Equivalente en C#
+**Relación:** 1 especie → muchas mascotas (1:N)
+Tabla: servicio
+Campo	Tipo	Restricciones	Descripción	Equivalente en C#
+id_servicio	INT	PK, AUTO_INCREMENT	Identificador de servicio	No existe
+nombre	VARCHAR(40)	NOT NULL, UNIQUE	Nombre del servicio	No existe
+costo_base	DECIMAL(10,2)	NOT NULL	Costo en colones	Método ObtenerCostoBase()
+**Relación:** 1 servicio → muchas mascotas (1:N)
+Tabla: mascota
+Campo	Tipo	Restricciones	Descripción	Equivalente en C#
+id_mascota	INT	PK, AUTO_INCREMENT	Identificador de mascota	No existe
+nombre	VARCHAR(40)	NOT NULL, UNIQUE	Nombre de la mascota	string Nombre
+id_especie	INT	FK, NOT NULL	Enlace a especie	string Especie
+edad	INT	NOT NULL	Edad en años	int Edad
+peso	DECIMAL(5,2)	NOT NULL	Peso en kg	double Peso
+sexo	CHAR(1)	NOT NULL	M / H	char Sexo
+id_servicio	INT	FK, NOT NULL	Enlace a servicio	No existe
+fecha_registro	DATETIME	NOT NULL, DEFAULT	Fecha de registro	DateTime FechaRegistro
+
+**Relación:** Tabla principal con llaves foráneas a especie y servicio
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,19 +1,10 @@
-﻿using System;
+﻿using MySqlConnector;
+using System;
 using System.Collections.Generic;
-using MySqlConnector;
+using System.Data;
 
 namespace RestauranteReservas.Datos
 {
-    // =====================================================================
-    // Tabla: plato (menu del restaurante) + categoria_plato.
-    // CP-13: rechaza precio negativo y nombre repetido.
-    // CP-14: un plato ya usado en una orden NO se borra; se desactiva
-    //        (disponible = FALSE) y desaparece del menu del cliente.
-    //
-    // Importante de CP-14: aqui NO existe ningun metodo DELETE sobre plato.
-    // La FK fk_detalle_plato impide borrar una fila que aparezca en
-    // detalle_orden (error MySQL 1451). La baja es logica: disponible = 0.
-    // =====================================================================
     public static class PlatoDatos
     {
         public class FilaPlato
@@ -28,12 +19,38 @@ namespace RestauranteReservas.Datos
             public string CategoriaNombre = "";
         }
 
+        public static List<FilaPlato> ListarTodos()
+        {
+            var lista = new List<FilaPlato>();
+            try
+            {
+                using (var cn = Conexion.ObtenerConexion())
+                {
+                    cn.Open();
+                    string sql = @"SELECT p.id, p.nombre, p.descripcion, p.precio,
+                                          p.tiempo_preparacion, p.disponible,
+                                          p.categoria_id, c.nombre AS categoria
+                                   FROM plato p
+                                   JOIN categoria_plato c ON c.id = p.categoria_id
+                                   ORDER BY c.nombre, p.nombre;";
+                    using (var cmd = new MySqlCommand(sql, cn))
+                    using (var leer = cmd.ExecuteReader())
+                        while (leer.Read()) lista.Add(LeerFila(leer));
+                }
+            }
+            catch (MySqlException)
+            {
+                lista = new List<FilaPlato>();
+            }
+            return lista;
+        }
+
         public static List<FilaPlato> Listar(bool soloDisponibles = false)
         {
             var lista = new List<FilaPlato>();
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     string sql = @"SELECT p.id, p.nombre, p.descripcion, p.precio,
@@ -63,7 +80,7 @@ namespace RestauranteReservas.Datos
             var lista = new List<FilaPlato>();
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"SELECT p.id, p.nombre, p.descripcion, p.precio,
@@ -90,11 +107,11 @@ namespace RestauranteReservas.Datos
             return lista;
         }
 
-        public static FilaPlato ObtenerPorId(int id)
+        public static FilaPlato? ObtenerPorId(int id)
         {
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"SELECT p.id, p.nombre, p.descripcion, p.precio,
@@ -117,13 +134,12 @@ namespace RestauranteReservas.Datos
             }
         }
 
-        // CP-13: nombre repetido (UNIQUE uk_nombre_plato).
         public static bool ExisteNombre(string nombre, int idExcluir = 0)
         {
             if (string.IsNullOrWhiteSpace(nombre)) return false;
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"SELECT COUNT(1) FROM plato
@@ -143,12 +159,11 @@ namespace RestauranteReservas.Datos
             }
         }
 
-        // CP-14: ¿el plato aparece en alguna orden guardada?
         public static bool EstaEnOrden(int platoId)
         {
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"SELECT COUNT(1) FROM detalle_orden WHERE plato_id = @id;";
@@ -165,8 +180,22 @@ namespace RestauranteReservas.Datos
             }
         }
 
-        // CP-13: agrega con validacion de nombre, precio y categoria.
-        public static ResultadoDatos Agregar(string nombre, string descripcion, decimal precio,
+        private static FilaPlato LeerFila(MySqlDataReader leer)
+        {
+            return new FilaPlato
+            {
+                Id = leer.GetInt32("id"),
+                Nombre = leer.GetString("nombre"),
+                Descripcion = leer.IsDBNull("descripcion") ? "" : leer.GetString("descripcion"),
+                Precio = leer.GetDecimal("precio"),
+                TiempoPreparacion = leer.IsDBNull("tiempo_preparacion") ? null : leer.GetInt32("tiempo_preparacion"),
+                Disponible = leer.GetBoolean("disponible"),
+                CategoriaId = leer.GetInt32("categoria_id"),
+                CategoriaNombre = leer.GetString("categoria")
+            };
+        }
+
+        public static ResultadoDatos Agregar(string nombre, string? descripcion, decimal precio,
                                              int? tiempoPreparacion, int categoriaId)
         {
             var r = new ResultadoDatos();
@@ -189,7 +218,7 @@ namespace RestauranteReservas.Datos
 
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"INSERT INTO plato
@@ -199,12 +228,14 @@ namespace RestauranteReservas.Datos
                     using (var cmd = new MySqlCommand(sql, cn))
                     {
                         cmd.Parameters.AddWithValue("@nombre", nombre.Trim());
-                        cmd.Parameters.AddWithValue("@desc", (object)descripcion ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@desc", (object?)descripcion ?? DBNull.Value);
                         cmd.Parameters.AddWithValue("@precio", precio);
-                        cmd.Parameters.AddWithValue("@tiempo", (object)tiempoPreparacion ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@tiempo", (object?)tiempoPreparacion ?? DBNull.Value);
                         cmd.Parameters.AddWithValue("@cat", categoriaId);
 
-                        r.IdGenerado = Convert.ToInt32(cmd.ExecuteScalar());
+                        var resultado = cmd.ExecuteScalar();
+                        if (resultado != null)
+                            r.IdGenerado = Convert.ToInt32(resultado);
                         r.Exito = true;
                         r.Mensaje = "OK";
                     }
@@ -225,7 +256,6 @@ namespace RestauranteReservas.Datos
             return r;
         }
 
-        // CP-13: modifica manteniendo las mismas validaciones del alta.
         public static ResultadoDatos Modificar(FilaPlato plato)
         {
             var r = new ResultadoDatos();
@@ -252,7 +282,7 @@ namespace RestauranteReservas.Datos
 
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
                     const string sql = @"UPDATE plato SET nombre = @nombre, descripcion = @desc,
@@ -262,9 +292,9 @@ namespace RestauranteReservas.Datos
                     using (var cmd = new MySqlCommand(sql, cn))
                     {
                         cmd.Parameters.AddWithValue("@nombre", plato.Nombre.Trim());
-                        cmd.Parameters.AddWithValue("@desc", (object)plato.Descripcion ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@desc", (object?)plato.Descripcion ?? DBNull.Value);
                         cmd.Parameters.AddWithValue("@precio", plato.Precio);
-                        cmd.Parameters.AddWithValue("@tiempo", (object)plato.TiempoPreparacion ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@tiempo", (object?)plato.TiempoPreparacion ?? DBNull.Value);
                         cmd.Parameters.AddWithValue("@cat", plato.CategoriaId);
                         cmd.Parameters.AddWithValue("@id", plato.Id);
 
@@ -288,10 +318,6 @@ namespace RestauranteReservas.Datos
             return r;
         }
 
-        // CP-14: baja logica. El formulario de administracion debe llamar
-        // siempre a este metodo (o a Desactivar); nunca a un DELETE.
-        // Si el plato ya fue ordenado, la fila se conserva por el historial
-        // de detalle_orden; solo se cambia disponible a 0 y sale del menu.
         public static ResultadoDatos DarDeBaja(int platoId)
         {
             var r = new ResultadoDatos();
@@ -301,7 +327,7 @@ namespace RestauranteReservas.Datos
             }
             try
             {
-                using (var cn = ConexionBD.ObtenerConexion())
+                using (var cn = Conexion.ObtenerConexion())
                 {
                     cn.Open();
 
@@ -325,9 +351,7 @@ namespace RestauranteReservas.Datos
                         }
                         else if (usado)
                         {
-                            r.Mensaje = "Desactivado: este plato ya aparece en una orden, "
-                                      + "no se puede borrar (CP-14); queda fuera del menú y "
-                                      + "su fila se conserva en el historial.";
+                            r.Mensaje = "Desactivado: este plato ya aparece en una orden, no se puede borrar. Queda fuera del menú.";
                         }
                         else
                         {
@@ -337,57 +361,3 @@ namespace RestauranteReservas.Datos
                 }
             }
             catch (MySqlException ex)
-            {
-                r.Mensaje = "MySQL " + ex.Number + ": " + ex.Message;
-            }
-            catch (Exception ex)
-            {
-                r.Mensaje = ex.Message;
-            }
-            return r;
-        }
-
-        // Mantiene la firma simple por compatibilidad con la Logica existente:
-        // pone disponible = 0. La decision CP-14 (usado/no usado) con mensaje
-        // la resuelve DarDeBaja.
-        public static ResultadoDatos Desactivar(int platoId)
-        {
-            var r = new ResultadoDatos();
-            try
-            {
-                using (var cn = ConexionBD.ObtenerConexion())
-                {
-                    cn.Open();
-                    const string sql = @"UPDATE plato SET disponible = 0 WHERE id = @id;";
-                    using (var cmd = new MySqlCommand(sql, cn))
-                    {
-                        cmd.Parameters.AddWithValue("@id", platoId);
-                        r.Exito = cmd.ExecuteNonQuery() > 0;
-                        r.Mensaje = r.Exito ? "OK" : "Plato no encontrado.";
-                    }
-                }
-            }
-            catch (MySqlException ex)
-            {
-                r.Mensaje = "MySQL " + ex.Number + ": " + ex.Message;
-            }
-            return r;
-        }
-
-        private static FilaPlato LeerFila(MySqlDataReader leer)
-        {
-            int ordTiempo = leer.GetOrdinal("tiempo_preparacion");
-            return new FilaPlato
-            {
-                Id = leer.GetInt32(leer.GetOrdinal("id")),
-                Nombre = leer.GetString(leer.GetOrdinal("nombre")),
-                Descripcion = leer.IsDBNull(leer.GetOrdinal("descripcion")) ? "" : leer.GetString(leer.GetOrdinal("descripcion")),
-                Precio = leer.GetDecimal(leer.GetOrdinal("precio")),
-                TiempoPreparacion = leer.IsDBNull(ordTiempo) ? (int?)null : leer.GetInt32(ordTiempo),
-                Disponible = leer.GetBoolean(leer.GetOrdinal("disponible")),
-                CategoriaId = leer.GetInt32(leer.GetOrdinal("categoria_id")),
-                CategoriaNombre = leer.GetString(leer.GetOrdinal("categoria"))
-            };
-        }
-    }
-}

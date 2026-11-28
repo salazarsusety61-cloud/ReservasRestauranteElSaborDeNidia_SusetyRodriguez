@@ -41,22 +41,30 @@
             txtObservaciones = new TextBox();
             btnGuardar = new Button();
             btnCancelar = new Button();
+            lblNombreCliente = new Label();
+            txtNombreCliente = new TextBox();
+            cboMesa = new ComboBox();
+            lblEstado = new Label();
+            cboEstado = new ComboBox();
+            grpPlatos = new GroupBox();
+            clbPlatos = new CheckedListBox();
             ((System.ComponentModel.ISupportInitialize)nudPersonas).BeginInit();
+            grpPlatos.SuspendLayout();
             SuspendLayout();
             // 
             // lblMesaInfo
             // 
             lblMesaInfo.AutoSize = true;
-            lblMesaInfo.Location = new Point(29, 23);
+            lblMesaInfo.Location = new Point(28, 64);
             lblMesaInfo.Name = "lblMesaInfo";
-            lblMesaInfo.Size = new Size(137, 20);
+            lblMesaInfo.Size = new Size(51, 20);
             lblMesaInfo.TabIndex = 0;
-            lblMesaInfo.Text = "Mesa seleccionada:";
+            lblMesaInfo.Text = "Mesa :";
             // 
             // lblFecha
             // 
             lblFecha.AutoSize = true;
-            lblFecha.Location = new Point(29, 61);
+            lblFecha.Location = new Point(28, 103);
             lblFecha.Name = "lblFecha";
             lblFecha.Size = new Size(50, 20);
             lblFecha.TabIndex = 1;
@@ -64,15 +72,15 @@
             // 
             // dtpFecha
             // 
-            dtpFecha.Location = new Point(85, 61);
+            dtpFecha.Location = new Point(75, 103);
             dtpFecha.Name = "dtpFecha";
-            dtpFecha.Size = new Size(308, 27);
+            dtpFecha.Size = new Size(274, 27);
             dtpFecha.TabIndex = 2;
             // 
             // lblHoraInicio
             // 
             lblHoraInicio.AutoSize = true;
-            lblHoraInicio.Location = new Point(29, 105);
+            lblHoraInicio.Location = new Point(28, 141);
             lblHoraInicio.Name = "lblHoraInicio";
             lblHoraInicio.Size = new Size(85, 20);
             lblHoraInicio.TabIndex = 3;
@@ -81,15 +89,15 @@
             // dtpHoraInicio
             // 
             dtpHoraInicio.Format = DateTimePickerFormat.Time;
-            dtpHoraInicio.Location = new Point(111, 100);
+            dtpHoraInicio.Location = new Point(119, 141);
             dtpHoraInicio.Name = "dtpHoraInicio";
-            dtpHoraInicio.Size = new Size(177, 27);
+            dtpHoraInicio.Size = new Size(88, 27);
             dtpHoraInicio.TabIndex = 4;
             // 
             // lblHoraFin
             // 
             lblHoraFin.AutoSize = true;
-            lblHoraFin.Location = new Point(29, 145);
+            lblHoraFin.Location = new Point(28, 181);
             lblHoraFin.Name = "lblHoraFin";
             lblHoraFin.Size = new Size(66, 20);
             lblHoraFin.TabIndex = 5;
@@ -98,15 +106,15 @@
             // dtpHoraFin
             // 
             dtpHoraFin.Format = DateTimePickerFormat.Time;
-            dtpHoraFin.Location = new Point(111, 140);
+            dtpHoraFin.Location = new Point(119, 179);
             dtpHoraFin.Name = "dtpHoraFin";
-            dtpHoraFin.Size = new Size(170, 27);
+            dtpHoraFin.Size = new Size(88, 27);
             dtpHoraFin.TabIndex = 6;
             // 
             // lblPersonas
             // 
             lblPersonas.AutoSize = true;
-            lblPersonas.Location = new Point(29, 188);
+            lblPersonas.Location = new Point(12, 214);
             lblPersonas.MinimumSize = new Size(0, 1);
             lblPersonas.Name = "lblPersonas";
             lblPersonas.Size = new Size(104, 20);
@@ -115,18 +123,18 @@
             // 
             // nudPersonas
             // 
-            nudPersonas.Location = new Point(138, 186);
+            nudPersonas.Location = new Point(129, 212);
             nudPersonas.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
             nudPersonas.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             nudPersonas.Name = "nudPersonas";
-            nudPersonas.Size = new Size(150, 27);
+            nudPersonas.Size = new Size(78, 27);
             nudPersonas.TabIndex = 8;
             nudPersonas.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // lblObservaciones
             // 
             lblObservaciones.AutoSize = true;
-            lblObservaciones.Location = new Point(29, 235);
+            lblObservaciones.Location = new Point(12, 250);
             lblObservaciones.Name = "lblObservaciones";
             lblObservaciones.Size = new Size(108, 20);
             lblObservaciones.TabIndex = 9;
@@ -134,7 +142,7 @@
             // 
             // txtObservaciones
             // 
-            txtObservaciones.Location = new Point(152, 232);
+            txtObservaciones.Location = new Point(126, 245);
             txtObservaciones.Multiline = true;
             txtObservaciones.Name = "txtObservaciones";
             txtObservaciones.Size = new Size(125, 34);
@@ -142,7 +150,7 @@
             // 
             // btnGuardar
             // 
-            btnGuardar.Location = new Point(55, 382);
+            btnGuardar.Location = new Point(152, 509);
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(144, 29);
             btnGuardar.TabIndex = 11;
@@ -152,7 +160,7 @@
             // 
             // btnCancelar
             // 
-            btnCancelar.Location = new Point(216, 383);
+            btnCancelar.Location = new Point(325, 509);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(94, 29);
             btnCancelar.TabIndex = 12;
@@ -160,11 +168,81 @@
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
             // 
+            // lblNombreCliente
+            // 
+            lblNombreCliente.AutoSize = true;
+            lblNombreCliente.Location = new Point(12, 19);
+            lblNombreCliente.Name = "lblNombreCliente";
+            lblNombreCliente.Size = new Size(140, 20);
+            lblNombreCliente.TabIndex = 13;
+            lblNombreCliente.Text = "Nombre del cliente:";
+            lblNombreCliente.Click += label1_Click;
+            // 
+            // txtNombreCliente
+            // 
+            txtNombreCliente.Location = new Point(152, 19);
+            txtNombreCliente.Name = "txtNombreCliente";
+            txtNombreCliente.Size = new Size(197, 27);
+            txtNombreCliente.TabIndex = 14;
+            // 
+            // cboMesa
+            // 
+            cboMesa.FormattingEnabled = true;
+            cboMesa.Location = new Point(85, 64);
+            cboMesa.Name = "cboMesa";
+            cboMesa.Size = new Size(178, 28);
+            cboMesa.TabIndex = 15;
+            // 
+            // lblEstado
+            // 
+            lblEstado.AutoSize = true;
+            lblEstado.Location = new Point(12, 295);
+            lblEstado.Name = "lblEstado";
+            lblEstado.Size = new Size(57, 20);
+            lblEstado.TabIndex = 16;
+            lblEstado.Text = "Estado:";
+            lblEstado.Click += lblEstado_Click;
+            // 
+            // cboEstado
+            // 
+            cboEstado.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboEstado.FormattingEnabled = true;
+            cboEstado.Items.AddRange(new object[] { "Confirmada", "Atendida", "Cancelada" });
+            cboEstado.Location = new Point(75, 292);
+            cboEstado.Name = "cboEstado";
+            cboEstado.Size = new Size(202, 28);
+            cboEstado.TabIndex = 17;
+            cboEstado.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
+            // 
+            // grpPlatos
+            // 
+            grpPlatos.Controls.Add(clbPlatos);
+            grpPlatos.Location = new Point(28, 341);
+            grpPlatos.Name = "grpPlatos";
+            grpPlatos.Size = new Size(250, 125);
+            grpPlatos.TabIndex = 18;
+            grpPlatos.TabStop = false;
+            grpPlatos.Text = "Platos solicitados";
+            // 
+            // clbPlatos
+            // 
+            clbPlatos.FormattingEnabled = true;
+            clbPlatos.Location = new Point(6, 37);
+            clbPlatos.Name = "clbPlatos";
+            clbPlatos.Size = new Size(150, 48);
+            clbPlatos.TabIndex = 19;
+            // 
             // FrmReserva
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(570, 560);
+            Controls.Add(grpPlatos);
+            Controls.Add(cboEstado);
+            Controls.Add(lblEstado);
+            Controls.Add(cboMesa);
+            Controls.Add(txtNombreCliente);
+            Controls.Add(lblNombreCliente);
             Controls.Add(btnCancelar);
             Controls.Add(btnGuardar);
             Controls.Add(txtObservaciones);
@@ -180,7 +258,9 @@
             Controls.Add(lblMesaInfo);
             Name = "FrmReserva";
             Text = "FrmReserva";
+            Load += FrmReserva_Load_1;
             ((System.ComponentModel.ISupportInitialize)nudPersonas).EndInit();
+            grpPlatos.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -200,5 +280,12 @@
         private TextBox txtObservaciones;
         private Button btnGuardar;
         private Button btnCancelar;
+        private Label lblNombreCliente;
+        private TextBox txtNombreCliente;
+        private ComboBox cboMesa;
+        private Label lblEstado;
+        private ComboBox cboEstado;
+        private GroupBox grpPlatos;
+        private CheckedListBox clbPlatos;
     }
 }

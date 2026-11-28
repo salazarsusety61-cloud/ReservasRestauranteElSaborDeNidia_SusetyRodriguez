@@ -116,5 +116,10 @@ namespace RestauranteReservas.Presentacion
                 MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void FrmFactura_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
